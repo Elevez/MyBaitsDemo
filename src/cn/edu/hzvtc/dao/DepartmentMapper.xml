@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace与对应的接口权限命名一致-->
+<mapper namespace="cn.edu.hzvtc.dao.DepartmentMapper">
+    <resultMap id="DeptResultMap" type="cn.edu.hzvtc.pojo.Department">
+        <id column="id" property="id"></id>
+        <result column="dept_name" property="deptName"></result>
+<!--        使用collection指定关联的集合属性，ofType指定集合元素的类型-->
+        <collection property="employees"
+                    select="cn.edu.hzvtc.dao.EmployeeMapper.getEmpsByDeptId"
+                    column="id"></collection>
+    </resultMap>
+
+    <select id="selectDepts" resultMap="DeptResultMap">
+        select d.id,d.dept_name,e.id eid,e.emp_name,e.email,e.gender
+        from tbl_department d left join tbl_employee e
+        on d.id=e.dept_id
+        where d.id=#{id}
+    </select>
+
+   <select id="selectDept" resultType="cn.edu.hzvtc.pojo.Department">
+       select id,dept_name deptName from tbl_department where id = #{id}
+   </select>
+
+</mapper>

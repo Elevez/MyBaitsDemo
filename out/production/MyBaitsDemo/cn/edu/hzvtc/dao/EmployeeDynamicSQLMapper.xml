@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace与对应的接口权限命名一致-->
+<mapper namespace="cn.edu.hzvtc.dao.EmployeeDynamicSQLMapper">
+    <select id="selectEmpByIdList" resultType="cn.edu.hzvtc.pojo.Employee">
+        select id,emp_name empName,email,gender from tbl_employee
+        <foreach collection="list" open="where id in (" close=")" item="empId" separator=",">
+            #{empId}
+        </foreach>
+    </select>
+
+<!--    <select id="selectEmpByCondition" resultType="cn.edu.hzvtc.pojo.Employee">-->
+<!--        select id,emp_name empName,email,gender from tbl_employee-->
+<!--        <trim prefix="where" suffixOverrides="and | or">-->
+<!--        <if test="id != null">id=#{id} and</if>-->
+<!--        <if test="empName != null &amp;&amp; empName != &quot;&quot;">emp_name=#{empName} and</if>-->
+<!--        <if test="email != null &amp;&amp; email != &quot;&quot;">email=#email} and</if>-->
+<!--        <if test="gender == 'F' or gender == 'M'">gender=#{gender}</if>-->
+<!--        </trim>-->
+<!--    </select>-->
+    <!--将开始的and或or剔除-->
+    <select id="selectEmpByCondition" resultType="cn.edu.hzvtc.pojo.Employee">
+        select id,emp_name empName,email,gender from tbl_employee
+        <where>
+            <choose>
+                <when test="id != null">id=#{id}</when>
+                <when test="empName != null &amp;&amp; empName != &quot;&quot;">emp_name=#{empName}</when>
+                <when test="email != null &amp;&amp; email != &quot;&quot;">email=#email}</when>
+                <otherwise>gender=#{gender}</otherwise>
+            </choose>
+        </where>
+    </select>
+    <!--将结尾多余的","剔除-->
+    <update id="updateEmp">
+        update tbl_employee
+            <trim prefix="set" suffixOverrides=",">
+                <if test="empName != null &amp;&amp; empName != &quot;&quot;">emp_name=#{empName},</if>
+                <if test="email != null &amp;&amp; email != &quot;&quot;">email=#email},</if>
+                <if test="gender == 'F' or gender == 'M'">gender=#{gender}</if>
+            </trim>
+        where id=#{id}
+    </update>
+
+    <insert id="addEmps">
+        insert into tbl_employee(emp_name,email,gender,dept_id)
+        values
+        <foreach collection="emps" item="emp" separator=",">
+            (#{emp.empName},#{emp.email},#{emp.gender},#{emp.department.id})
+        </foreach>
+    </insert>
+
+
+</mapper>
